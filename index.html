@@ -1,0 +1,1826 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Vortex Exchange & MM — Trade • Exchange • Trust</title>
+  <meta name="description" content="A trusted, professional Discord community built for trading, exchanges, and verified middleman services." />
+  
+  <!-- Web Fonts & FontAwesome -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Space+Grotesk:wght@500;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" integrity="sha512-DTOQO9RWCH3ppGqcWaEA1BIZOC6xxalwEsw9c2QQeAIftl+Vegovlnee1c9QX4TctnWMn13TZye+giMm8e2LwA==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+
+  <style>
+    /* ==========================================================================
+       1. GLOBAL THEME DESIGN TOKENS
+       ========================================================================== */
+    :root {
+      --bg-base: #06080e;
+      --bg-surface: rgba(13, 17, 28, 0.75);
+      --bg-card: rgba(18, 24, 38, 0.65);
+      --bg-card-hover: rgba(26, 34, 54, 0.88);
+      
+      --accent-cyan: #38bdf8;
+      --accent-blue: #3b82f6;
+      --accent-purple: #8b5cf6;
+      --accent-violet: #6366f1;
+      --accent-pink: #ec4899;
+      --accent-green: #10b981;
+      --accent-offline: #0f172a;
+      
+      --gradient-brand: linear-gradient(135deg, #38bdf8 0%, #6366f1 50%, #8b5cf6 100%);
+      --text-main: #f1f5f9;
+      --text-muted: #94a3b8;
+      --text-subtle: #64748b;
+      
+      --border-subtle: rgba(255, 255, 255, 0.08);
+      --border-highlight: rgba(99, 102, 241, 0.4);
+      
+      --radius-sm: 8px;
+      --radius-md: 14px;
+      --radius-lg: 20px;
+      --radius-xl: 30px;
+      
+      --shadow-glow: 0 0 40px -10px rgba(99, 102, 241, 0.35);
+      --shadow-card: 0 16px 36px -12px rgba(0, 0, 0, 0.5);
+      --font-display: 'Space Grotesk', sans-serif;
+      --font-body: 'Plus Jakarta Sans', sans-serif;
+      --transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    *, *::before, *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    html {
+      scroll-behavior: smooth;
+      font-size: 16px;
+      background-color: var(--bg-base);
+      color: var(--text-main);
+      overflow-x: hidden;
+    }
+
+    body {
+      font-family: var(--font-body);
+      min-height: 100vh;
+      line-height: 1.6;
+      background-color: var(--bg-base);
+      overflow-x: hidden;
+      position: relative;
+    }
+
+    ::selection {
+      background: var(--accent-violet);
+      color: #fff;
+    }
+
+    a {
+      text-decoration: none;
+      color: inherit;
+      transition: var(--transition);
+    }
+
+    #ambient-canvas {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      pointer-events: none;
+      z-index: 0;
+      opacity: 0.6;
+    }
+
+    .ambient-glow-1 {
+      position: fixed;
+      top: -120px;
+      left: -100px;
+      width: 550px;
+      height: 550px;
+      background: radial-gradient(circle, rgba(56, 189, 248, 0.12) 0%, transparent 65%);
+      filter: blur(80px);
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    .ambient-glow-2 {
+      position: fixed;
+      bottom: 5%;
+      right: -150px;
+      width: 650px;
+      height: 650px;
+      background: radial-gradient(circle, rgba(139, 92, 246, 0.12) 0%, transparent 65%);
+      filter: blur(90px);
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    .layout-wrapper {
+      position: relative;
+      z-index: 1;
+      display: flex;
+      flex-direction: column;
+      min-height: 100vh;
+    }
+
+    .container {
+      width: 100%;
+      max-width: 1220px;
+      margin: 0 auto;
+      padding: 0 1.5rem;
+    }
+
+    .section-head {
+      text-align: center;
+      max-width: 720px;
+      margin: 0 auto 3.5rem auto;
+    }
+
+    .pill-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.55rem;
+      padding: 0.35rem 0.95rem;
+      border-radius: 999px;
+      font-size: 0.8rem;
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      background: rgba(99, 102, 241, 0.1);
+      border: 1px solid rgba(99, 102, 241, 0.3);
+      color: var(--accent-cyan);
+      margin-bottom: 1.2rem;
+      box-shadow: 0 0 20px rgba(56, 189, 248, 0.15);
+    }
+
+    .section-title {
+      font-family: var(--font-display);
+      font-size: clamp(2rem, 3.8vw, 2.75rem);
+      font-weight: 700;
+      line-height: 1.2;
+      letter-spacing: -0.02em;
+      margin-bottom: 1rem;
+      background: linear-gradient(180deg, #ffffff 40%, #94a3b8 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .section-desc {
+      font-size: 1.05rem;
+      color: var(--text-muted);
+      line-height: 1.65;
+    }
+
+    /* ==========================================================================
+       2. NAVIGATION
+       ========================================================================== */
+    .navbar {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 76px;
+      z-index: 100;
+      background: rgba(6, 8, 14, 0.7);
+      backdrop-filter: blur(16px);
+      border-bottom: 1px solid var(--border-subtle);
+      transition: var(--transition);
+    }
+
+    .navbar.scrolled {
+      height: 68px;
+      background: rgba(6, 8, 14, 0.92);
+      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+      box-shadow: 0 8px 30px rgba(0, 0, 0, 0.4);
+    }
+
+    .nav-inner {
+      height: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .nav-brand {
+      display: flex;
+      align-items: center;
+      gap: 0.85rem;
+      font-family: var(--font-display);
+      font-size: 1.15rem;
+      font-weight: 700;
+      color: #fff;
+    }
+
+    .brand-icon-wrap {
+      width: 40px;
+      height: 40px;
+      border-radius: var(--radius-sm);
+      background: var(--gradient-brand);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.1rem;
+      box-shadow: 0 0 20px rgba(56, 189, 248, 0.4);
+      position: relative;
+    }
+
+    .brand-icon-wrap::after {
+      content: '';
+      position: absolute;
+      inset: 1px;
+      border-radius: 7px;
+      background: #090d16;
+      z-index: 1;
+    }
+
+    .brand-icon-wrap i {
+      position: relative;
+      z-index: 2;
+      background: var(--gradient-brand);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .nav-links {
+      display: flex;
+      align-items: center;
+      gap: 1.8rem;
+    }
+
+    .nav-links a {
+      font-size: 0.92rem;
+      font-weight: 500;
+      color: var(--text-muted);
+    }
+
+    .nav-links a:hover {
+      color: #fff;
+    }
+
+    .nav-actions {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+    }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.65rem;
+      padding: 0.75rem 1.65rem;
+      border-radius: var(--radius-md);
+      font-size: 0.92rem;
+      font-weight: 600;
+      cursor: pointer;
+      border: 1px solid transparent;
+      transition: var(--transition);
+      white-space: nowrap;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+    }
+
+    .btn-glow-primary {
+      background: var(--gradient-brand);
+      color: #fff;
+      box-shadow: 0 0 25px rgba(99, 102, 241, 0.4), inset 0 1px 1px rgba(255, 255, 255, 0.3);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .btn-glow-primary:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 0 35px rgba(56, 189, 248, 0.6);
+    }
+
+    .btn-glass {
+      background: rgba(255, 255, 255, 0.04);
+      color: var(--text-main);
+      border: 1px solid var(--border-subtle);
+      backdrop-filter: blur(10px);
+    }
+
+    .btn-glass:hover {
+      background: rgba(255, 255, 255, 0.08);
+      border-color: rgba(255, 255, 255, 0.2);
+      transform: translateY(-2px);
+    }
+
+    .nav-toggle-btn {
+      display: none;
+      background: transparent;
+      border: none;
+      color: var(--text-main);
+      font-size: 1.4rem;
+      cursor: pointer;
+    }
+
+    .mobile-drawer {
+      position: fixed;
+      top: 76px;
+      left: 0;
+      width: 100%;
+      height: calc(100vh - 76px);
+      background: rgba(6, 8, 14, 0.98);
+      backdrop-filter: blur(25px);
+      display: flex;
+      flex-direction: column;
+      padding: 2.5rem 1.5rem;
+      gap: 1.5rem;
+      transform: translateX(100%);
+      transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+      z-index: 99;
+      border-top: 1px solid var(--border-subtle);
+    }
+
+    .mobile-drawer.active {
+      transform: translateX(0);
+    }
+
+    .mobile-drawer a {
+      font-size: 1.25rem;
+      font-weight: 600;
+      color: var(--text-main);
+      padding: 0.6rem 0;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+    }
+
+    /* ==========================================================================
+       3. HERO & LIVE COUNTERS
+       ========================================================================== */
+    .hero {
+      padding-top: 160px;
+      padding-bottom: 80px;
+      text-align: center;
+      position: relative;
+    }
+
+    .hero-container {
+      max-width: 950px;
+      margin: 0 auto;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    .hero-title {
+      font-family: var(--font-display);
+      font-size: clamp(2.75rem, 6.2vw, 4.8rem);
+      font-weight: 800;
+      line-height: 1.05;
+      letter-spacing: -0.03em;
+      margin-bottom: 1rem;
+      text-transform: uppercase;
+      background: linear-gradient(180deg, #ffffff 30%, #a5b4fc 70%, #38bdf8 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      text-shadow: 0 10px 40px rgba(99, 102, 241, 0.35);
+    }
+
+    .hero-subtitle {
+      font-family: var(--font-display);
+      font-size: clamp(1.2rem, 2.5vw, 1.65rem);
+      font-weight: 600;
+      letter-spacing: 0.05em;
+      color: var(--accent-cyan);
+      margin-bottom: 1.5rem;
+      text-transform: uppercase;
+      display: flex;
+      align-items: center;
+      gap: 0.8rem;
+    }
+
+    .hero-subtitle::before, .hero-subtitle::after {
+      content: '';
+      width: 28px;
+      height: 2px;
+      background: linear-gradient(90deg, transparent, var(--accent-cyan));
+    }
+
+    .hero-subtitle::after {
+      background: linear-gradient(90deg, var(--accent-cyan), transparent);
+    }
+
+    .hero-desc {
+      font-size: clamp(1.05rem, 2vw, 1.25rem);
+      color: var(--text-muted);
+      line-height: 1.7;
+      max-width: 760px;
+      margin-bottom: 2.5rem;
+    }
+
+    .hero-cta-group {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 1.25rem;
+      flex-wrap: wrap;
+      margin-bottom: 3.5rem;
+    }
+
+    .counter-strip {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 1.5rem;
+      width: 100%;
+      max-width: 820px;
+      padding: 1.6rem 2rem;
+      background: var(--bg-card);
+      backdrop-filter: blur(14px);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-xl);
+      box-shadow: var(--shadow-card);
+    }
+
+    .counter-box {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 1.1rem;
+      position: relative;
+    }
+
+    .counter-box:not(:last-child)::after {
+      content: '';
+      position: absolute;
+      right: -0.75rem;
+      height: 60%;
+      width: 1px;
+      background: rgba(255, 255, 255, 0.08);
+    }
+
+    .counter-icon-wrap {
+      width: 50px;
+      height: 50px;
+      border-radius: 14px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.35rem;
+      background: rgba(255, 255, 255, 0.04);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      flex-shrink: 0;
+    }
+
+    .counter-box.members .counter-icon-wrap {
+      color: var(--accent-cyan);
+      box-shadow: 0 0 20px rgba(56, 189, 248, 0.15);
+    }
+
+    .counter-box.online .counter-icon-wrap {
+      color: var(--accent-green);
+      box-shadow: 0 0 20px rgba(16, 185, 129, 0.15);
+    }
+
+    .counter-box.boosts .counter-icon-wrap {
+      color: var(--accent-pink);
+      box-shadow: 0 0 20px rgba(236, 72, 153, 0.15);
+    }
+
+    .counter-info {
+      text-align: left;
+    }
+
+    .counter-value {
+      font-family: var(--font-display);
+      font-size: 1.85rem;
+      font-weight: 800;
+      color: #fff;
+      line-height: 1.1;
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+    }
+
+    .counter-label {
+      font-size: 0.82rem;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--text-muted);
+      font-weight: 600;
+    }
+
+    .pulse-dot {
+      display: inline-block;
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--accent-green);
+      box-shadow: 0 0 10px var(--accent-green);
+      animation: pulseAnimation 2s infinite;
+    }
+
+    @keyframes pulseAnimation {
+      0% { transform: scale(0.9); opacity: 0.6; }
+      50% { transform: scale(1.3); opacity: 1; }
+      100% { transform: scale(0.9); opacity: 0.6; }
+    }
+
+    /* ==========================================================================
+       4. FEATURES
+       ========================================================================== */
+    .section-features {
+      padding: 90px 0;
+    }
+
+    .features-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+      gap: 1.5rem;
+    }
+
+    .feature-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-lg);
+      padding: 2.2rem 1.8rem;
+      transition: var(--transition);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .feature-card:hover {
+      background: var(--bg-card-hover);
+      transform: translateY(-6px);
+      border-color: rgba(99, 102, 241, 0.4);
+      box-shadow: var(--shadow-glow);
+    }
+
+    .feature-icon-badge {
+      width: 52px;
+      height: 52px;
+      border-radius: var(--radius-md);
+      background: rgba(99, 102, 241, 0.12);
+      border: 1px solid rgba(99, 102, 241, 0.25);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.5rem;
+      color: var(--accent-cyan);
+      margin-bottom: 1.5rem;
+    }
+
+    .feature-card h3 {
+      font-family: var(--font-display);
+      font-size: 1.3rem;
+      font-weight: 700;
+      margin-bottom: 0.75rem;
+      color: #fff;
+    }
+
+    .feature-card p {
+      font-size: 0.95rem;
+      color: var(--text-muted);
+      line-height: 1.6;
+    }
+
+    /* ==========================================================================
+       5. MIDDLEMAN SPOTLIGHT
+       ========================================================================== */
+    .section-middleman {
+      padding: 80px 0;
+    }
+
+    .mm-card-wrapper {
+      position: relative;
+      border-radius: var(--radius-xl);
+      background: linear-gradient(135deg, rgba(13, 20, 36, 0.9), rgba(20, 16, 38, 0.85));
+      border: 1px solid var(--border-highlight);
+      padding: clamp(2.5rem, 5vw, 4.5rem);
+      box-shadow: 0 20px 50px -10px rgba(0, 0, 0, 0.7), var(--shadow-glow);
+      overflow: hidden;
+    }
+
+    .mm-inner-grid {
+      display: grid;
+      grid-template-columns: 1.2fr 0.8fr;
+      gap: 3.5rem;
+      align-items: center;
+      position: relative;
+      z-index: 2;
+    }
+
+    .mm-content h2 {
+      font-family: var(--font-display);
+      font-size: clamp(2.2rem, 4vw, 3.2rem);
+      line-height: 1.15;
+      font-weight: 700;
+      margin-bottom: 1.25rem;
+      color: #ffffff;
+    }
+
+    .mm-content p {
+      font-size: 1.15rem;
+      color: var(--text-muted);
+      margin-bottom: 2.2rem;
+      line-height: 1.7;
+    }
+
+    .mm-badge-list {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.85rem;
+      margin-bottom: 2.5rem;
+    }
+
+    .mm-tag {
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      padding: 0.4rem 0.9rem;
+      border-radius: var(--radius-sm);
+      font-size: 0.85rem;
+      color: var(--text-main);
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .mm-tag i {
+      color: var(--accent-cyan);
+    }
+
+    .trade-flow {
+      display: flex;
+      flex-direction: column;
+      gap: 1.2rem;
+    }
+
+    .flow-node {
+      display: flex;
+      align-items: center;
+      gap: 1.1rem;
+      background: rgba(255, 255, 255, 0.03);
+      padding: 1rem 1.25rem;
+      border-radius: var(--radius-md);
+      border: 1px solid var(--border-subtle);
+    }
+
+    .flow-node.active-mm {
+      background: rgba(99, 102, 241, 0.12);
+      border-color: rgba(99, 102, 241, 0.5);
+      box-shadow: 0 0 20px rgba(99, 102, 241, 0.2);
+    }
+
+    .flow-node i {
+      font-size: 1.3rem;
+      color: var(--accent-cyan);
+    }
+
+    .flow-node-text h4 {
+      font-size: 0.95rem;
+      font-weight: 600;
+      color: #fff;
+    }
+
+    .flow-node-text span {
+      font-size: 0.8rem;
+      color: var(--text-muted);
+    }
+
+    /* ==========================================================================
+       6. VERIFIED STAFF & LIVE STATUS DOTS (GREEN VS BLACK)
+       ========================================================================== */
+    .section-staff {
+      padding: 90px 0;
+    }
+
+    .staff-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(270px, 1fr));
+      gap: 1.8rem;
+    }
+
+    .staff-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-lg);
+      overflow: hidden;
+      transition: var(--transition);
+      display: flex;
+      flex-direction: column;
+      position: relative;
+    }
+
+    .staff-card:hover {
+      transform: translateY(-6px);
+      border-color: rgba(99, 102, 241, 0.45);
+      box-shadow: var(--shadow-glow);
+    }
+
+    .staff-banner {
+      width: 100%;
+      height: 105px;
+      position: relative;
+      background-size: cover;
+      background-position: center;
+      background-repeat: no-repeat;
+      background-color: #161e30;
+    }
+
+    .staff-banner::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(180deg, transparent 40%, rgba(18, 24, 38, 0.95) 100%);
+    }
+
+    .staff-body {
+      padding: 0 1.5rem 1.6rem 1.5rem;
+      display: flex;
+      flex-direction: column;
+      position: relative;
+      margin-top: -38px;
+      z-index: 2;
+    }
+
+    .staff-avatar-wrapper {
+      position: relative;
+      width: 72px;
+      height: 72px;
+      margin-bottom: 0.9rem;
+    }
+
+    .staff-avatar {
+      width: 72px;
+      height: 72px;
+      border-radius: 50%;
+      border: 3px solid #121826;
+      background: #090d16;
+      object-fit: cover;
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5);
+    }
+
+    /* STATUS INDICATOR (GREEN FOR ONLINE, BLACK FOR OFFLINE) */
+    .status-indicator-dot {
+      position: absolute;
+      bottom: 2px;
+      right: 2px;
+      width: 18px;
+      height: 18px;
+      border-radius: 50%;
+      border: 3px solid #121826;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: var(--transition);
+    }
+
+    /* GREEN ICON (ONLINE) */
+    .status-indicator-dot.online {
+      background-color: #10b981;
+      box-shadow: 0 0 12px #10b981;
+    }
+
+    /* BLACK ICON (OFFLINE) */
+    .status-indicator-dot.offline {
+      background-color: #0b0f19;
+      border: 3px solid #1e293b;
+      box-shadow: inset 0 0 4px #000;
+    }
+
+    .staff-title-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 0.15rem;
+    }
+
+    .staff-name {
+      font-family: var(--font-display);
+      font-size: 1.25rem;
+      font-weight: 700;
+      color: #fff;
+    }
+
+    /* Status Label Badge */
+    .status-text-pill {
+      font-size: 0.72rem;
+      font-weight: 700;
+      padding: 0.2rem 0.55rem;
+      border-radius: 999px;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.35rem;
+    }
+
+    .status-text-pill.online {
+      background: rgba(16, 185, 129, 0.15);
+      color: #34d399;
+      border: 1px solid rgba(16, 185, 129, 0.3);
+    }
+
+    .status-text-pill.offline {
+      background: rgba(15, 23, 42, 0.6);
+      color: #64748b;
+      border: 1px solid rgba(255, 255, 255, 0.05);
+    }
+
+    .staff-handle {
+      font-size: 0.85rem;
+      color: var(--text-muted);
+      margin-bottom: 0.9rem;
+    }
+
+    .staff-role-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.45rem;
+      padding: 0.35rem 0.8rem;
+      border-radius: 999px;
+      font-size: 0.76rem;
+      font-weight: 700;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+      margin-bottom: 0.9rem;
+      width: fit-content;
+    }
+
+    .staff-id-tag {
+      background: rgba(255, 255, 255, 0.03);
+      border: 1px solid rgba(255, 255, 255, 0.07);
+      border-radius: var(--radius-sm);
+      padding: 0.45rem 0.75rem;
+      font-size: 0.75rem;
+      color: var(--text-subtle);
+      font-family: monospace;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .staff-id-tag span {
+      color: #cbd5e1;
+    }
+
+    /* ==========================================================================
+       7. HOW IT WORKS
+       ========================================================================== */
+    .section-steps {
+      padding: 90px 0;
+    }
+
+    .steps-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 2rem;
+    }
+
+    .step-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-lg);
+      padding: 2.5rem 2rem;
+      transition: var(--transition);
+      display: flex;
+      flex-direction: column;
+    }
+
+    .step-card:hover {
+      border-color: var(--accent-purple);
+      transform: translateY(-4px);
+      box-shadow: 0 15px 30px rgba(0, 0, 0, 0.4);
+    }
+
+    .step-number {
+      font-family: var(--font-display);
+      font-size: 2.8rem;
+      font-weight: 800;
+      line-height: 1;
+      margin-bottom: 1.5rem;
+      background: linear-gradient(135deg, var(--accent-cyan), var(--accent-purple));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .step-card h3 {
+      font-family: var(--font-display);
+      font-size: 1.35rem;
+      font-weight: 700;
+      margin-bottom: 0.8rem;
+      color: #fff;
+    }
+
+    .step-card p {
+      font-size: 0.98rem;
+      color: var(--text-muted);
+      line-height: 1.6;
+    }
+
+    /* ==========================================================================
+       8. RULES & SAFETY
+       ========================================================================== */
+    .section-safety {
+      padding: 90px 0;
+    }
+
+    .safety-container {
+      background: var(--bg-surface);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-xl);
+      padding: clamp(2rem, 4vw, 3.5rem);
+      box-shadow: var(--shadow-card);
+    }
+
+    .safety-rules-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+      gap: 1.25rem;
+      margin-bottom: 2.5rem;
+    }
+
+    .rule-item {
+      display: flex;
+      align-items: center;
+      gap: 0.9rem;
+      padding: 1rem 1.2rem;
+      border-radius: var(--radius-md);
+      background: rgba(255, 255, 255, 0.02);
+      border: 1px solid rgba(255, 255, 255, 0.04);
+      font-size: 0.95rem;
+      font-weight: 500;
+      color: #e2e8f0;
+      transition: var(--transition);
+    }
+
+    .rule-item:hover {
+      background: rgba(255, 255, 255, 0.05);
+      border-color: rgba(99, 102, 241, 0.3);
+      transform: translateX(4px);
+    }
+
+    .rule-item i {
+      color: #ef4444;
+      font-size: 1rem;
+    }
+
+    .rule-item.positive i {
+      color: #10b981;
+    }
+
+    .safety-warning-banner {
+      background: linear-gradient(135deg, rgba(239, 68, 68, 0.08), rgba(99, 102, 241, 0.08));
+      border: 1px solid rgba(239, 68, 68, 0.25);
+      border-radius: var(--radius-md);
+      padding: 1.5rem 1.8rem;
+      display: flex;
+      align-items: flex-start;
+      gap: 1.2rem;
+    }
+
+    .safety-warning-banner i {
+      font-size: 1.5rem;
+      color: #f87171;
+      margin-top: 0.15rem;
+    }
+
+    .warning-text h4 {
+      font-size: 1rem;
+      font-weight: 700;
+      color: #fff;
+      margin-bottom: 0.35rem;
+    }
+
+    .warning-text p {
+      font-size: 0.92rem;
+      color: #cbd5e1;
+      line-height: 1.55;
+    }
+
+    /* ==========================================================================
+       9. FAQ SECTION
+       ========================================================================== */
+    .section-faq {
+      padding: 90px 0;
+    }
+
+    .faq-list {
+      max-width: 820px;
+      margin: 0 auto;
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+    }
+
+    .faq-item {
+      background: var(--bg-card);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-md);
+      overflow: hidden;
+      transition: var(--transition);
+    }
+
+    .faq-item:hover {
+      border-color: rgba(255, 255, 255, 0.18);
+    }
+
+    .faq-item.active {
+      border-color: rgba(99, 102, 241, 0.45);
+      background: rgba(22, 29, 46, 0.85);
+      box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.3);
+    }
+
+    .faq-trigger {
+      width: 100%;
+      padding: 1.4rem 1.6rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 1rem;
+      background: transparent;
+      border: none;
+      color: #fff;
+      font-family: var(--font-display);
+      font-size: 1.05rem;
+      font-weight: 600;
+      text-align: left;
+      cursor: pointer;
+    }
+
+    .faq-icon-indicator {
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      background: rgba(255, 255, 255, 0.05);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.85rem;
+      color: var(--accent-cyan);
+      transition: var(--transition);
+      flex-shrink: 0;
+    }
+
+    .faq-item.active .faq-icon-indicator {
+      transform: rotate(180deg);
+      background: var(--accent-violet);
+      color: #fff;
+    }
+
+    .faq-content {
+      max-height: 0;
+      overflow: hidden;
+      transition: max-height 0.35s cubic-bezier(0, 1, 0, 1);
+    }
+
+    .faq-content-inner {
+      padding: 0 1.6rem 1.5rem 1.6rem;
+      font-size: 0.96rem;
+      color: var(--text-muted);
+      line-height: 1.65;
+    }
+
+    /* ==========================================================================
+       10. FINAL CTA & FOOTER
+       ========================================================================== */
+    .section-final-cta {
+      padding: 100px 0 120px 0;
+    }
+
+    .final-cta-box {
+      text-align: center;
+      position: relative;
+      border-radius: var(--radius-xl);
+      padding: clamp(3rem, 6vw, 5.5rem) 2rem;
+      background: radial-gradient(120% 120% at 50% 10%, rgba(99, 102, 241, 0.25) 0%, rgba(13, 17, 28, 0.95) 70%);
+      border: 1px solid var(--border-highlight);
+      box-shadow: 0 0 60px -15px rgba(99, 102, 241, 0.4);
+      overflow: hidden;
+    }
+
+    .final-cta-box h2 {
+      font-family: var(--font-display);
+      font-size: clamp(2.4rem, 5vw, 3.8rem);
+      font-weight: 800;
+      letter-spacing: -0.02em;
+      margin-bottom: 1rem;
+      color: #ffffff;
+      text-transform: uppercase;
+    }
+
+    .final-cta-box p {
+      font-size: clamp(1.05rem, 2vw, 1.25rem);
+      color: var(--text-muted);
+      max-width: 600px;
+      margin: 0 auto 2.5rem auto;
+    }
+
+    .footer {
+      border-top: 1px solid var(--border-subtle);
+      background: rgba(4, 5, 10, 0.95);
+      padding: 4rem 0 2.5rem 0;
+    }
+
+    .footer-top {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 2rem;
+      padding-bottom: 2.5rem;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+    }
+
+    .footer-brand h3 {
+      font-family: var(--font-display);
+      font-size: 1.25rem;
+      font-weight: 700;
+      color: #fff;
+      margin-bottom: 0.25rem;
+    }
+
+    .footer-brand p {
+      font-size: 0.9rem;
+      color: var(--accent-cyan);
+      font-weight: 500;
+    }
+
+    .footer-bottom {
+      padding-top: 2rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 1rem;
+      font-size: 0.85rem;
+      color: var(--text-subtle);
+    }
+
+    @media (max-width: 992px) {
+      .mm-inner-grid { grid-template-columns: 1fr; }
+      .steps-grid { grid-template-columns: 1fr; }
+      .counter-strip { grid-template-columns: 1fr; gap: 1.5rem; }
+      .counter-box:not(:last-child)::after { display: none; }
+    }
+
+    @media (max-width: 768px) {
+      .nav-links, .nav-actions .btn { display: none; }
+      .nav-toggle-btn { display: block; }
+      .hero { padding-top: 125px; }
+      .footer-top { flex-direction: column; align-items: flex-start; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Ambient Dynamic Canvas Background -->
+  <canvas id="ambient-canvas"></canvas>
+  <div class="ambient-glow-1"></div>
+  <div class="ambient-glow-2"></div>
+
+  <div class="layout-wrapper">
+    <!-- NAVIGATION BAR -->
+    <header class="navbar" id="navbar">
+      <div class="container nav-inner">
+        <a href="#" class="nav-brand">
+          <div class="brand-icon-wrap">
+            <i class="fa-solid fa-bolt-lightning"></i>
+          </div>
+          <span>VORTEX</span>
+        </a>
+
+        <nav class="nav-links">
+          <a href="#features">Features</a>
+          <a href="#middleman">Middleman</a>
+          <a href="#staff">Verified Staff</a>
+          <a href="#how-it-works">How It Works</a>
+          <a href="#safety">Safety</a>
+          <a href="#faq">FAQ</a>
+        </nav>
+
+        <div class="nav-actions">
+          <a href="https://discord.gg/XJr2ccNXQD" target="_blank" rel="noopener noreferrer" class="btn btn-glow-primary">
+            <i class="fa-brands fa-discord"></i>
+            <span>Join Discord</span>
+          </a>
+          <button class="nav-toggle-btn" id="mobile-toggle" aria-label="Toggle Navigation Menu">
+            <i class="fa-solid fa-bars"></i>
+          </button>
+        </div>
+      </div>
+    </header>
+
+    <!-- Mobile Drawer -->
+    <div class="mobile-drawer" id="mobile-drawer">
+      <a href="#features" class="mobile-link">Features</a>
+      <a href="#middleman" class="mobile-link">Middleman</a>
+      <a href="#staff" class="mobile-link">Verified Staff</a>
+      <a href="#how-it-works" class="mobile-link">How It Works</a>
+      <a href="#safety" class="mobile-link">Safety</a>
+      <a href="#faq" class="mobile-link">FAQ</a>
+      <a href="https://discord.gg/XJr2ccNXQD" target="_blank" rel="noopener noreferrer" class="btn btn-glow-primary" style="margin-top: 1rem; width: 100%;">
+        <i class="fa-brands fa-discord"></i> Join Discord
+      </a>
+    </div>
+
+    <!-- HERO SECTION -->
+    <section class="hero" id="home">
+      <div class="container hero-container">
+        <div class="pill-badge">
+          <i class="fa-solid fa-shield-halved"></i>
+          <span>Official Vortex Network</span>
+        </div>
+
+        <h1 class="hero-title">VORTEX EXCHANGE & MM</h1>
+        <div class="hero-subtitle">Trade. Exchange. Trust.</div>
+
+        <p class="hero-desc">
+          A community built for trading, exchanges, and middleman services. Connect with traders, find reliable deals, and trade with confidence in a dedicated Discord community.
+        </p>
+
+        <div class="hero-cta-group">
+          <a href="https://discord.gg/XJr2ccNXQD" target="_blank" rel="noopener noreferrer" class="btn btn-glow-primary" style="padding: 1rem 2.2rem; font-size: 1rem;">
+            <i class="fa-brands fa-discord"></i>
+            <span>Join Discord</span>
+          </a>
+          <a href="#features" class="btn btn-glass" style="padding: 1rem 2rem; font-size: 1rem;">
+            <span>Learn More</span>
+            <i class="fa-solid fa-arrow-down-long"></i>
+          </a>
+        </div>
+
+        <!-- LIVE SERVER COUNTERS -->
+        <div class="counter-strip">
+          <div class="counter-box members">
+            <div class="counter-icon-wrap">
+              <i class="fa-solid fa-users"></i>
+            </div>
+            <div class="counter-info">
+              <div class="counter-value" id="count-members">
+                <span class="count-num">--</span>
+              </div>
+              <div class="counter-label">Total Members</div>
+            </div>
+          </div>
+
+          <div class="counter-box online">
+            <div class="counter-icon-wrap">
+              <i class="fa-solid fa-signal"></i>
+            </div>
+            <div class="counter-info">
+              <div class="counter-value" id="count-online">
+                <span class="count-num">--</span>
+                <span class="pulse-dot"></span>
+              </div>
+              <div class="counter-label">Online Now</div>
+            </div>
+          </div>
+
+          <div class="counter-box boosts">
+            <div class="counter-icon-wrap">
+              <i class="fa-solid fa-gem"></i>
+            </div>
+            <div class="counter-info">
+              <div class="counter-value" id="count-boosts">
+                <span class="count-num">--</span>
+              </div>
+              <div class="counter-label">Server Boosts</div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- FEATURES SECTION -->
+    <section class="section-features" id="features">
+      <div class="container">
+        <div class="section-head">
+          <div class="pill-badge"><i class="fa-solid fa-cube"></i> Platform Highlights</div>
+          <h2 class="section-title">Built for Modern Traders</h2>
+          <p class="section-desc">Everything you need to exchange items and assets with peace of mind in one unified Discord space.</p>
+        </div>
+
+        <div class="features-grid">
+          <div class="feature-card">
+            <div class="feature-icon-badge">
+              <i class="fa-solid fa-shield-virus"></i>
+            </div>
+            <h3>🛡️ Middleman Service</h3>
+            <p>A dedicated middleman service designed to help make trades more organized and secure.</p>
+          </div>
+
+          <div class="feature-card">
+            <div class="feature-icon-badge">
+              <i class="fa-solid fa-repeat"></i>
+            </div>
+            <h3>🔄 Trading & Exchanges</h3>
+            <p>Connect with other traders, negotiate deals, and exchange items through our community.</p>
+          </div>
+
+          <div class="feature-card">
+            <div class="feature-icon-badge">
+              <i class="fa-solid fa-handshake-angle"></i>
+            </div>
+            <h3>🤝 Trusted Community</h3>
+            <p>Meet other members, communicate, and build trusted trading connections.</p>
+          </div>
+
+          <div class="feature-card">
+            <div class="feature-icon-badge">
+              <i class="fa-solid fa-bolt"></i>
+            </div>
+            <h3>⚡ Fast & Organized</h3>
+            <p>Keep your trades organized with dedicated channels and clear community rules.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- MIDDLEMAN SPOTLIGHT SECTION -->
+    <section class="section-middleman" id="middleman">
+      <div class="container">
+        <div class="mm-card-wrapper">
+          <div class="mm-inner-grid">
+            <div class="mm-content">
+              <div class="pill-badge"><i class="fa-solid fa-lock"></i> Escrow & Protection</div>
+              <h2>Trade With Confidence</h2>
+              <p>
+                Need a middleman for your trade? Our community provides a dedicated environment for organized transactions and safer trading between members.
+              </p>
+              
+              <div class="mm-badge-list">
+                <span class="mm-tag"><i class="fa-solid fa-check-double"></i> Anti-Scam Protocols</span>
+                <span class="mm-tag"><i class="fa-solid fa-ticket"></i> Ticket-Based Privacy</span>
+                <span class="mm-tag"><i class="fa-solid fa-user-check"></i> Staff Verification</span>
+              </div>
+
+              <a href="https://discord.gg/XJr2ccNXQD" target="_blank" rel="noopener noreferrer" class="btn btn-glow-primary">
+                <i class="fa-brands fa-discord"></i>
+                <span>Join Vortex</span>
+              </a>
+            </div>
+
+            <div class="mm-interactive-graphic">
+              <div class="trade-flow">
+                <div class="flow-node">
+                  <i class="fa-solid fa-user"></i>
+                  <div class="flow-node-text">
+                    <h4>Party A (Seller)</h4>
+                    <span>Deposits items or assets securely</span>
+                  </div>
+                </div>
+
+                <div class="flow-node active-mm">
+                  <i class="fa-solid fa-shield-halved"></i>
+                  <div class="flow-node-text">
+                    <h4>Vortex Middleman</h4>
+                    <span>Verifies terms and holds assets in escrow</span>
+                  </div>
+                </div>
+
+                <div class="flow-node">
+                  <i class="fa-solid fa-user-group"></i>
+                  <div class="flow-node-text">
+                    <h4>Party B (Buyer)</h4>
+                    <span>Fulfills agreed payment or trade terms</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- VERIFIED STAFF & LIVE STATUS SECTION -->
+    <section class="section-staff" id="staff">
+      <div class="container">
+        <div class="section-head">
+          <div class="pill-badge"><i class="fa-solid fa-user-shield"></i> Live Verification</div>
+          <h2 class="section-title">Official Staff & Middlemen</h2>
+          <p class="section-desc">Our bot continuously audits staff roles and live presence. Middlemen with a <span style="color:#10b981; font-weight:700;">green icon</span> are currently online and ready to assist.</p>
+        </div>
+
+        <!-- Dynamically rendered based on bot.py live data -->
+        <div class="staff-grid" id="staff-grid">
+          <div style="grid-column: 1 / -1; text-align: center; color: var(--text-muted); padding: 2rem;">
+            <i class="fa-solid fa-circle-notch fa-spin" style="font-size: 1.5rem; margin-bottom: 0.5rem; color: var(--accent-cyan);"></i>
+            <p>Syncing verified staff profiles with Discord...</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- HOW IT WORKS -->
+    <section class="section-steps" id="how-it-works">
+      <div class="container">
+        <div class="section-head">
+          <div class="pill-badge"><i class="fa-solid fa-layer-group"></i> Simple Process</div>
+          <h2 class="section-title">How It Works</h2>
+          <p class="section-desc">Get started in three simple steps and enjoy smooth transactions with verified counterparts.</p>
+        </div>
+
+        <div class="steps-grid">
+          <div class="step-card">
+            <div class="step-number">01</div>
+            <h3>Join</h3>
+            <p>Join the Vortex Exchange & MM Discord server.</p>
+          </div>
+
+          <div class="step-card">
+            <div class="step-number">02</div>
+            <h3>Find a Trade</h3>
+            <p>Connect with another trader and agree on the terms of your deal.</p>
+          </div>
+
+          <div class="step-card">
+            <div class="step-number">03</div>
+            <h3>Trade Safely</h3>
+            <p>Use the appropriate community procedures and middleman service when needed.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- RULES & SAFETY -->
+    <section class="section-safety" id="safety">
+      <div class="container">
+        <div class="safety-container">
+          <div class="section-head" style="margin-bottom: 2.5rem;">
+            <div class="pill-badge" style="border-color: rgba(239, 68, 68, 0.4); color: #f87171;">
+              <i class="fa-solid fa-triangle-exclamation"></i> Security Standard
+            </div>
+            <h2 class="section-title">COMMUNITY SAFETY</h2>
+            <p class="section-desc">We maintain zero-tolerance guidelines to protect honest traders from bad actors.</p>
+          </div>
+
+          <div class="safety-rules-grid">
+            <div class="rule-item">
+              <i class="fa-solid fa-ban"></i>
+              <span>No scamming</span>
+            </div>
+            <div class="rule-item">
+              <i class="fa-solid fa-ban"></i>
+              <span>No fraud</span>
+            </div>
+            <div class="rule-item">
+              <i class="fa-solid fa-ban"></i>
+              <span>No impersonation</span>
+            </div>
+            <div class="rule-item">
+              <i class="fa-solid fa-ban"></i>
+              <span>No stealing</span>
+            </div>
+            <div class="rule-item">
+              <i class="fa-solid fa-ban"></i>
+              <span>No dishonest trading</span>
+            </div>
+            <div class="rule-item positive">
+              <i class="fa-solid fa-circle-check"></i>
+              <span>Respect other members</span>
+            </div>
+            <div class="rule-item positive">
+              <i class="fa-solid fa-circle-check"></i>
+              <span>Follow Discord's Terms of Service</span>
+            </div>
+            <div class="rule-item positive">
+              <i class="fa-solid fa-circle-check"></i>
+              <span>Follow server rules & staff</span>
+            </div>
+          </div>
+
+          <div class="safety-warning-banner">
+            <i class="fa-solid fa-circle-exclamation"></i>
+            <div class="warning-text">
+              <h4>Crucial Safety Protocol</h4>
+              <p>
+                Always verify the identity of anyone claiming to be staff or a middleman. Never send items or payments unless you understand the trade and the procedures being used.
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- FAQ SECTION -->
+    <section class="section-faq" id="faq">
+      <div class="container">
+        <div class="section-head">
+          <div class="pill-badge"><i class="fa-regular fa-circle-question"></i> Clear Answers</div>
+          <h2 class="section-title">Frequently Asked Questions</h2>
+          <p class="section-desc">Everything you need to know about navigating and trading in Vortex Exchange & MM.</p>
+        </div>
+
+        <div class="faq-list">
+          <div class="faq-item">
+            <button class="faq-trigger" aria-expanded="false">
+              <span>What is Vortex Exchange & MM?</span>
+              <div class="faq-icon-indicator"><i class="fa-solid fa-chevron-down"></i></div>
+            </button>
+            <div class="faq-content">
+              <div class="faq-content-inner">
+                Vortex Exchange & MM is a Discord community focused on trading, exchanges, and middleman services.
+              </div>
+            </div>
+          </div>
+
+          <div class="faq-item">
+            <button class="faq-trigger" aria-expanded="false">
+              <span>How do I join?</span>
+              <div class="faq-icon-indicator"><i class="fa-solid fa-chevron-down"></i></div>
+            </button>
+            <div class="faq-content">
+              <div class="faq-content-inner">
+                Click any “Join Discord” button on the website to enter the server.
+              </div>
+            </div>
+          </div>
+
+          <div class="faq-item">
+            <button class="faq-trigger" aria-expanded="false">
+              <span>Can I use a middleman?</span>
+              <div class="faq-icon-indicator"><i class="fa-solid fa-chevron-down"></i></div>
+            </button>
+            <div class="faq-content">
+              <div class="faq-content-inner">
+                Yes. Members can use the community's middleman service when appropriate for their trade.
+              </div>
+            </div>
+          </div>
+
+          <div class="faq-item">
+            <button class="faq-trigger" aria-expanded="false">
+              <span>How do I stay safe while trading?</span>
+              <div class="faq-icon-indicator"><i class="fa-solid fa-chevron-down"></i></div>
+            </button>
+            <div class="faq-content">
+              <div class="faq-content-inner">
+                Always verify who you're trading with, follow the server rules, and use the recommended procedures for transactions.
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- FINAL CALL TO ACTION -->
+    <section class="section-final-cta">
+      <div class="container">
+        <div class="final-cta-box">
+          <h2>READY TO TRADE?</h2>
+          <p>Join Vortex Exchange & MM and become part of the community.</p>
+          <a href="https://discord.gg/XJr2ccNXQD" target="_blank" rel="noopener noreferrer" class="btn btn-glow-primary" style="padding: 1.1rem 2.6rem; font-size: 1.05rem;">
+            <i class="fa-brands fa-discord"></i>
+            <span>JOIN THE DISCORD</span>
+          </a>
+        </div>
+      </div>
+    </section>
+
+    <!-- FOOTER -->
+    <footer class="footer">
+      <div class="container">
+        <div class="footer-top">
+          <div class="footer-brand">
+            <h3>Vortex Exchange & MM</h3>
+            <p>Trade • Exchange • Trust</p>
+          </div>
+          <div class="footer-cta">
+            <a href="https://discord.gg/XJr2ccNXQD" target="_blank" rel="noopener noreferrer" class="btn btn-glow-primary">
+              <i class="fa-brands fa-discord"></i>
+              <span>Join Discord</span>
+            </a>
+          </div>
+        </div>
+        <div class="footer-bottom">
+          <p>&copy; Vortex Exchange & MM. All rights reserved.</p>
+          <p>Discord is a registered trademark of Discord Inc. Vortex is an independent community.</p>
+        </div>
+      </div>
+    </footer>
+  </div>
+
+  <!-- ==========================================================================
+       11. JAVASCRIPT: PARTICLES, ACCORDION & REAL-TIME STATS POLLER
+       ========================================================================== -->
+  <script>
+    // --- 1. Ambient Background Particles ---
+    const canvas = document.getElementById('ambient-canvas');
+    const ctx = canvas.getContext('2d');
+    let width, height, particles = [];
+
+    function resizeCanvas() {
+      width = canvas.width = window.innerWidth;
+      height = canvas.height = window.innerHeight;
+    }
+
+    class Particle {
+      constructor() { this.reset(); }
+      reset() {
+        this.x = Math.random() * width;
+        this.y = Math.random() * height;
+        this.vx = (Math.random() - 0.5) * 0.4;
+        this.vy = (Math.random() - 0.5) * 0.4;
+        this.radius = Math.random() * 1.5 + 0.8;
+        this.alpha = Math.random() * 0.5 + 0.2;
+      }
+      update() {
+        this.x += this.vx;
+        this.y += this.vy;
+        if (this.x < 0 || this.x > width) this.vx *= -1;
+        if (this.y < 0 || this.y > height) this.vy *= -1;
+      }
+      draw() {
+        ctx.beginPath();
+        ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
+        ctx.fillStyle = `rgba(139, 92, 246, ${this.alpha})`;
+        ctx.fill();
+      }
+    }
+
+    function initParticles() {
+      resizeCanvas();
+      particles = [];
+      const count = Math.min(Math.floor(window.innerWidth / 22), 45);
+      for (let i = 0; i < count; i++) particles.push(new Particle());
+    }
+
+    function animateParticles() {
+      ctx.clearRect(0, 0, width, height);
+      for (let i = 0; i < particles.length; i++) {
+        for (let j = i + 1; j < particles.length; j++) {
+          const dx = particles[i].x - particles[j].x;
+          const dy = particles[i].y - particles[j].y;
+          const dist = Math.sqrt(dx * dx + dy * dy);
+          if (dist < 115) {
+            ctx.beginPath();
+            ctx.strokeStyle = `rgba(56, 189, 248, ${0.1 * (1 - dist / 115)})`;
+            ctx.lineWidth = 1;
+            ctx.moveTo(particles[i].x, particles[i].y);
+            ctx.lineTo(particles[j].x, particles[j].y);
+            ctx.stroke();
+          }
+        }
+      }
+      particles.forEach(p => { p.update(); p.draw(); });
+      requestAnimationFrame(animateParticles);
+    }
+
+    window.addEventListener('resize', resizeCanvas);
+    initParticles();
+    animateParticles();
+
+    // --- 2. Navbar Scrolling & Mobile Drawer ---
+    const navbar = document.getElementById('navbar');
+    window.addEventListener('scroll', () => {
+      navbar.classList.toggle('scrolled', window.scrollY > 30);
+    });
+
+    const mobileToggle = document.getElementById('mobile-toggle');
+    const mobileDrawer = document.getElementById('mobile-drawer');
+    const mobileLinks = document.querySelectorAll('.mobile-link');
+
+    mobileToggle.addEventListener('click', () => {
+      mobileDrawer.classList.toggle('active');
+      const icon = mobileToggle.querySelector('i');
+      icon.classList.toggle('fa-bars');
+      icon.classList.toggle('fa-xmark');
+    });
+
+    mobileLinks.forEach(link => {
+      link.addEventListener('click', () => {
+        mobileDrawer.classList.remove('active');
+        const icon = mobileToggle.querySelector('i');
+        icon.classList.add('fa-bars');
+        icon.classList.remove('fa-xmark');
+      });
+    });
+
+    // --- 3. Expandable FAQ Accordions ---
+    document.querySelectorAll('.faq-item').forEach(item => {
+      const trigger = item.querySelector('.faq-trigger');
+      const content = item.querySelector('.faq-content');
+
+      trigger.addEventListener('click', () => {
+        const isActive = item.classList.contains('active');
+        document.querySelectorAll('.faq-item').forEach(other => {
+          if (other !== item) {
+            other.classList.remove('active');
+            other.querySelector('.faq-trigger').setAttribute('aria-expanded', 'false');
+            other.querySelector('.faq-content').style.maxHeight = null;
+          }
+        });
+
+        if (isActive) {
+          item.classList.remove('active');
+          trigger.setAttribute('aria-expanded', 'false');
+          content.style.maxHeight = null;
+        } else {
+          item.classList.add('active');
+          trigger.setAttribute('aria-expanded', 'true');
+          content.style.maxHeight = content.scrollHeight + 'px';
+        }
+      });
+    });
+
+    // --- 4. Real-Time Staff Sync, Role Addition/Removal & Status Polling ---
+    async function syncDiscordWithWebsite() {
+      const memberNum = document.querySelector("#count-members .count-num");
+      const onlineNum = document.querySelector("#count-online .count-num");
+      const boostNum = document.querySelector("#count-boosts .count-num");
+      const staffGrid = document.getElementById("staff-grid");
+
+      let data = null;
+
+      try {
+        const res = await fetch("http://localhost:5000/api/stats");
+        if (res.ok) data = await res.json();
+      } catch (e) {
+        try {
+          const res = await fetch("stats.json");
+          if (res.ok) data = await res.json();
+        } catch (e2) {}
+      }
+
+      // Fallback if bot is not currently running
+      if (!data) {
+        try {
+          const invRes = await fetch("https://discord.com/api/v9/invites/XJr2ccNXQD?with_counts=true");
+          if (invRes.ok) {
+            const invData = await invRes.json();
+            if (memberNum) memberNum.textContent = (invData.approximate_member_count || 1200).toLocaleString();
+            if (onlineNum) onlineNum.textContent = (invData.approximate_presence_count || 340).toLocaleString();
+            if (boostNum) boostNum.textContent = "Level 3";
+          }
+        } catch (e3) {}
+        return;
+      }
+
+      // Update counters
+      if (memberNum && data.member_count !== undefined) {
+        memberNum.textContent = Number(data.member_count).toLocaleString();
+      }
+      if (onlineNum && data.online_count !== undefined) {
+        onlineNum.textContent = Number(data.online_count).toLocaleString();
+      }
+      if (boostNum && data.boost_count !== undefined) {
+        boostNum.textContent = `${data.boost_count} (Tier ${data.boost_tier})`;
+      }
+
+      // Dynamically add or remove staff members based on live Discord data
+      if (staffGrid && Array.isArray(data.staff)) {
+        if (data.staff.length === 0) {
+          staffGrid.innerHTML = `
+            <div style="grid-column: 1 / -1; text-align: center; color: var(--text-muted); padding: 2rem;">
+              <p>No verified middlemen or staff are currently assigned to the official roles.</p>
+            </div>
+          `;
+          return;
+        }
+
+        staffGrid.innerHTML = "";
+
+        data.staff.forEach(staff => {
+          const bannerStyle = staff.banner 
+            ? `background-image: url('${staff.banner}');` 
+            : `background: linear-gradient(135deg, ${staff.accent_color || '#6366f1'}, #090d16);`;
+
+          // Online = Green Dot, Offline = Black Dot
+          const isOnline = staff.is_online;
+          const statusClass = isOnline ? "online" : "offline";
+          const statusLabel = isOnline ? "Online" : "Offline";
+
+          const card = document.createElement("div");
+          card.className = "staff-card";
+          card.innerHTML = `
+            <div class="staff-banner" style="${bannerStyle}"></div>
+            <div class="staff-body">
+              <div class="staff-avatar-wrapper">
+                <img src="${staff.avatar}" alt="${staff.display_name}" class="staff-avatar" />
+                <!-- Green dot if online, Black dot if offline -->
+                <div class="status-indicator-dot ${statusClass}" title="${statusLabel}"></div>
+              </div>
+              <div class="staff-title-row">
+                <div class="staff-name">${staff.display_name}</div>
+                <div class="status-text-pill ${statusClass}">
+                  <i class="fa-solid fa-circle" style="font-size: 0.5rem;"></i> ${statusLabel}
+                </div>
+              </div>
+              <div class="staff-handle">@${staff.username}</div>
+              
+              <div class="staff-role-badge" style="border: 1px solid ${staff.role_color}; color: ${staff.role_color}; background: rgba(255,255,255,0.05);">
+                <i class="fa-solid fa-shield"></i> ${staff.role_name}
+              </div>
+
+              <div class="staff-id-tag">
+                User ID: <span>${staff.id}</span>
+              </div>
+            </div>
+          `;
+          staffGrid.appendChild(card);
+        });
+      }
+    }
+
+    // Run immediately, then poll every 3 seconds for instant updates
+    syncDiscordWithWebsite();
+    setInterval(syncDiscordWithWebsite, 3000);
+  </script>
+</body>
+</html>
