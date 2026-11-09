@@ -1,14 +1,23 @@
+import os
+import sys
 import asyncio
 import json
 import discord
 from discord.ext import commands, tasks
 from aiohttp import web
+from dotenv import load_dotenv
+
+# Load local .env variables if present
+load_dotenv()
 
 # ==============================================================================
-# CONFIGURATION
+# CONFIGURATION (LOADED SECURELY FROM ENVIRONMENT VARIABLES)
 # ==============================================================================
-BOT_TOKEN = "YOUR_DISCORD_BOT_TOKEN_HERE"  # Put your bot token here
-GUILD_ID = 0  # Put your server ID here (number only, e.g. 123456789012345678)
+BOT_TOKEN = os.getenv("BOT_TOKEN")
+GUILD_ID = int(os.getenv("GUILD_ID", 0))
+
+# Render assigns a dynamic port via the 'PORT' environment variable
+API_PORT = int(os.getenv("PORT", 5000))
 
 # The 4 designated Staff Role IDs
 STAFF_ROLE_IDS = [
@@ -18,18 +27,21 @@ STAFF_ROLE_IDS = [
     1568387457752371270,
 ]
 
-API_PORT = 5000
+# Exit early if the token is not set
+if not BOT_TOKEN:
+    print("[ERROR] BOT_TOKEN is missing! Set it in your Render Environment tab.")
+    sys.exit(1)
 
 # ==============================================================================
 # BOT INITIALIZATION
 # ==============================================================================
 intents = discord.Intents.default()
-intents.members = True      # Required: Server Members Intent in Dev Portal
-intents.presences = True    # Required: Presence Intent in Dev Portal
+intents.members = True      # Required: Server Members Intent enabled in Dev Portal
+intents.presences = True    # Required: Presence Intent enabled in Dev Portal
 
 bot = commands.Bot(command_prefix="!", intents=intents)
 
-# In-memory storage and profile cache
+# In-memory storage & rate-limit cache
 banner_cache = {}  # {user_id: {"banner": url, "accent_color": hex}}
 live_cache = {
     "server_name": "Vortex Exchange & MM",
@@ -51,7 +63,7 @@ async def update_community_stats():
     if not guild:
         return
 
-    # 1. Server Counts
+    # 1. Total & Online Counts
     total_members = guild.member_count or len(guild.members)
     online_members = sum(
         1 for m in guild.members
@@ -60,7 +72,7 @@ async def update_community_stats():
     boost_count = guild.premium_subscription_count or 0
     boost_tier = guild.premium_tier or 0
 
-    # 2. Audit Staff Members
+    # 2. Extract Staff Members
     staff_list = []
     seen_user_ids = set()
 
@@ -74,11 +86,11 @@ async def update_community_stats():
                 continue
             seen_user_ids.add(member.id)
 
-            # Online vs Offline detection
+            # Check if online (Online, Idle, or DND = Online)
             is_online = member.status != discord.Status.offline
             status_text = "online" if is_online else "offline"
 
-            # Check cached banner to avoid Discord REST rate limits
+            # Profile banner caching to avoid Discord REST rate limits
             if member.id in banner_cache:
                 banner_url = banner_cache[member.id]["banner"]
                 accent_color = banner_cache[member.id]["accent_color"]
@@ -129,7 +141,6 @@ async def update_community_stats():
         "staff": staff_list
     }
 
-    # Save to stats.json
     try:
         with open("stats.json", "w", encoding="utf-8") as f:
             json.dump(live_cache, f, indent=2)
@@ -139,37 +150,33 @@ async def update_community_stats():
 # ==============================================================================
 # REAL-TIME EVENT LISTENERS (AUTOMATIC ROLE & STATUS CHANGES)
 # ==============================================================================
-
-# Triggered when someone is given or loses a role
 @bot.event
 async def on_member_update(before, after):
     before_roles = {r.id for r in before.roles}
     after_roles = {r.id for r in after.roles}
-
-    # Check if any staff role was added or removed
     target_set = set(STAFF_ROLE_IDS)
+
+    # Automatically add or remove staff when Discord roles change
     if (before_roles & target_set) != (after_roles & target_set):
-        print(f"[⚡ ROLE UPDATE] Staff roles changed for {after.display_name}. Syncing website...")
+        print(f"[⚡ ROLE UPDATE] Staff role change detected for {after.display_name}. Updating...")
         await update_community_stats()
 
-# Triggered when a member goes Online, Offline, Idle, or DND
 @bot.event
 async def on_presence_update(before, after):
-    # Only update if the user has a staff role
+    # Detect when a staff member changes status (Online <-> Offline)
     has_staff_role = any(r.id in STAFF_ROLE_IDS for r in after.roles)
     if has_staff_role and before.status != after.status:
         print(f"[⚡ STATUS UPDATE] {after.display_name} switched from {before.status} to {after.status}.")
         await update_community_stats()
 
-# Triggered if a staff member leaves or is removed from the server
 @bot.event
 async def on_member_remove(member):
+    # If a staff member leaves or gets kicked/banned, remove them immediately
     has_staff_role = any(r.id in STAFF_ROLE_IDS for r in member.roles)
     if has_staff_role:
-        print(f"[⚡ MEMBER LEFT] Staff member {member.display_name} left the server. Removing from website...")
+        print(f"[⚡ MEMBER LEFT] Staff member {member.display_name} left. Removing from website...")
         await update_community_stats()
 
-# Background backup sync every 30 seconds
 @tasks.loop(seconds=30)
 async def stats_updater_task():
     await update_community_stats()
@@ -178,23 +185,24 @@ async def stats_updater_task():
 async def on_ready():
     print("==================================================")
     print(f"Logged in as: {bot.user.name} ({bot.user.id})")
-    print("Real-time staff role and online/offline listener active.")
+    print(f"Server ID: {GUILD_ID}")
+    print("Real-time staff role and presence listener active.")
     print("==================================================")
-    
+
     guild = bot.get_guild(GUILD_ID)
     if guild:
         try:
             print("[*] Chunking guild members to cache roles...")
             await guild.chunk()
         except Exception as e:
-            print(f"[!] Chunk error: {e}")
+            print(f"[!] Chunking warning: {e}")
 
     await update_community_stats()
     if not stats_updater_task.is_running():
         stats_updater_task.start()
 
 # ==============================================================================
-# NATIVE CORS REST API (NO aiohttp_cors NEEDED)
+# NATIVE CORS REST API (RUNS ON RENDER PORT)
 # ==============================================================================
 CORS_HEADERS = {
     "Access-Control-Allow-Origin": "*",
@@ -205,11 +213,15 @@ CORS_HEADERS = {
 async def handle_get_stats(request):
     return web.json_response(live_cache, headers=CORS_HEADERS)
 
+async def handle_root(request):
+    return web.json_response({"status": "online", "service": "Vortex API"}, headers=CORS_HEADERS)
+
 async def handle_options(request):
     return web.Response(headers=CORS_HEADERS)
 
 async def start_web_server():
     app = web.Application()
+    app.router.add_get("/", handle_root)
     app.router.add_get("/api/stats", handle_get_stats)
     app.router.add_route("OPTIONS", "/api/stats", handle_options)
 
@@ -217,10 +229,10 @@ async def start_web_server():
     await runner.setup()
     site = web.TCPSite(runner, "0.0.0.0", API_PORT)
     await site.start()
-    print(f"[✓] Live Stats API active: http://localhost:{API_PORT}/api/stats\n")
+    print(f"[✓] Live Stats API active on port {API_PORT}")
 
 # ==============================================================================
-# MAIN RUNNER
+# MAIN ENTRY POINT
 # ==============================================================================
 async def main():
     async with bot:
@@ -231,4 +243,4 @@ if __name__ == "__main__":
     try:
         asyncio.run(main())
     except KeyboardInterrupt:
-        print("\nBot process terminated by operator.")
+        print("\nBot process stopped by user.")
