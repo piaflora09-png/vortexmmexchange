@@ -7,8 +7,8 @@ from aiohttp import web
 # ==============================================================================
 # CONFIGURATION
 # ==============================================================================
-BOT_TOKEN = "MTU2OTI5MDE3Nzk3MTc0ODkzNA.Gq-Ubw.772KbiUQMh1JTEslTMXhg9SGvE6ajWd7_ybRo0"  # Put your bot token here
-GUILD_ID = 1542941315933667348  # Put your server ID here (number only, e.g. 123456789012345678)
+BOT_TOKEN = "YOUR_DISCORD_BOT_TOKEN_HERE"  # Put your bot token here
+GUILD_ID = 0  # Put your server ID here (number only, e.g. 123456789012345678)
 
 # The 4 designated Staff Role IDs
 STAFF_ROLE_IDS = [
