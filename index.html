@@ -28,7 +28,6 @@
       --accent-violet: #6366f1;
       --accent-pink: #ec4899;
       --accent-green: #10b981;
-      --accent-offline: #0f172a;
       
       --gradient-brand: linear-gradient(135deg, #38bdf8 0%, #6366f1 50%, #8b5cf6 100%);
       --text-main: #f1f5f9;
@@ -796,7 +795,6 @@
       color: #fff;
     }
 
-    /* Status Label Badge */
     .status-text-pill {
       font-size: 0.72rem;
       font-weight: 700;
@@ -1397,7 +1395,6 @@
           <p class="section-desc">Our bot continuously audits staff roles and live presence. Middlemen with a <span style="color:#10b981; font-weight:700;">green icon</span> are currently online and ready to assist.</p>
         </div>
 
-        <!-- Dynamically rendered based on bot.py live data -->
         <div class="staff-grid" id="staff-grid">
           <div style="grid-column: 1 / -1; text-align: center; color: var(--text-muted); padding: 2rem;">
             <i class="fa-solid fa-circle-notch fa-spin" style="font-size: 1.5rem; margin-bottom: 0.5rem; color: var(--accent-cyan);"></i>
@@ -1596,10 +1593,14 @@
     </footer>
   </div>
 
-  <!-- ==========================================================================
-       11. JAVASCRIPT: PARTICLES, ACCORDION & REAL-TIME STATS POLLER
-       ========================================================================== -->
+  <!-- JAVASCRIPT -->
   <script>
+    // =========================================================================
+    // CONFIGURE YOUR RENDER BACKEND URL HERE
+    // (Replace with your actual Render URL, or leave as localhost for local testing)
+    // =========================================================================
+    const BACKEND_API_URL = "https://your-bot-name.onrender.com/api/stats";
+
     // --- 1. Ambient Background Particles ---
     const canvas = document.getElementById('ambient-canvas');
     const ctx = canvas.getContext('2d');
@@ -1719,7 +1720,7 @@
       });
     });
 
-    // --- 4. Real-Time Staff Sync, Role Addition/Removal & Status Polling ---
+    // --- 4. Live Bot Data Synchronizer ---
     async function syncDiscordWithWebsite() {
       const memberNum = document.querySelector("#count-members .count-num");
       const onlineNum = document.querySelector("#count-online .count-num");
@@ -1728,17 +1729,25 @@
 
       let data = null;
 
+      // 1. Try Render API Endpoint first
       try {
-        const res = await fetch("http://localhost:5000/api/stats");
+        const res = await fetch(BACKEND_API_URL);
         if (res.ok) data = await res.json();
       } catch (e) {
+        // Fall back to local API if testing on PC
         try {
-          const res = await fetch("stats.json");
+          const res = await fetch("http://localhost:5000/api/stats");
           if (res.ok) data = await res.json();
-        } catch (e2) {}
+        } catch (e2) {
+          // Fall back to stats.json
+          try {
+            const res = await fetch("stats.json");
+            if (res.ok) data = await res.json();
+          } catch (e3) {}
+        }
       }
 
-      // Fallback if bot is not currently running
+      // 2. If the Bot backend is completely unreachable, use public Discord invite API
       if (!data) {
         try {
           const invRes = await fetch("https://discord.com/api/v9/invites/XJr2ccNXQD?with_counts=true");
@@ -1748,11 +1757,11 @@
             if (onlineNum) onlineNum.textContent = (invData.approximate_presence_count || 340).toLocaleString();
             if (boostNum) boostNum.textContent = "Level 3";
           }
-        } catch (e3) {}
+        } catch (e4) {}
         return;
       }
 
-      // Update counters
+      // 3. Update Numerical Counters
       if (memberNum && data.member_count !== undefined) {
         memberNum.textContent = Number(data.member_count).toLocaleString();
       }
@@ -1763,7 +1772,7 @@
         boostNum.textContent = `${data.boost_count} (Tier ${data.boost_tier})`;
       }
 
-      // Dynamically add or remove staff members based on live Discord data
+      // 4. Render Staff Profiles dynamically with Online/Offline indicators
       if (staffGrid && Array.isArray(data.staff)) {
         if (data.staff.length === 0) {
           staffGrid.innerHTML = `
@@ -1818,7 +1827,7 @@
       }
     }
 
-    // Run immediately, then poll every 3 seconds for instant updates
+    // Run on page load, then poll every 3 seconds for instant real-time sync
     syncDiscordWithWebsite();
     setInterval(syncDiscordWithWebsite, 3000);
   </script>
